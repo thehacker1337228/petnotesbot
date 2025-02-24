@@ -1,14 +1,20 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+# Определение кнопок
+ADD_KEY = "📌 Добавить"
+LIST_KEY = "🗒️ Мои заметки"
+DEL_KEY = "❌ Удалить заметку"
+EDIT_KEY = "✏️ Редактировать заметку"
+START_KEY = "/start"
+CANCEL_KEY = "Отменить"
 
-#reply клава
-main = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Добавить"),
-                                          KeyboardButton(text="Мои заметки")],
-                                         [KeyboardButton(text="Удалить заметку"),
-                                          KeyboardButton(text="Редактировать заметку")],
-                                     [KeyboardButton(text="/start")]],
-                               resize_keyboard=True,
-                               input_field_placeholder="Выберите пункт меню...")
+# Создание клавиатуры
+main = ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text=ADD_KEY), KeyboardButton(text=LIST_KEY)],
+    [KeyboardButton(text=DEL_KEY), KeyboardButton(text=EDIT_KEY)],
+    [KeyboardButton(text=START_KEY)]
+], resize_keyboard=True, input_field_placeholder="Выберите пункт меню...")
 
-cancel_button = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Отменить")]], resize_keyboard=True)
+
+cancel_button = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=CANCEL_KEY)]], resize_keyboard=True)
 

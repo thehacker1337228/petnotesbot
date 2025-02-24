@@ -47,7 +47,7 @@ async def setup_handlers(self):
         await state.clear()
         await message.answer("Операция отменена", reply_markup=kb.main)
 
-    @self.dp.message(F.text == "Добавить")
+    @self.dp.message(F.text.contains("📌")) #Добавить заметку
     async def add_one(message: Message, state: FSMContext):
         user = self.user_service.get(message.from_user.id)  # раскатываем дто объект юзера обязательно заново
         user.state = SessionState.ADD_NOTE.value
@@ -83,7 +83,7 @@ async def setup_handlers(self):
 
         await state.clear()
 
-    @self.dp.message(F.text == "Мои заметки")
+    @self.dp.message(F.text.contains("🗒️")) #Мои заметки
     async def show(message: Message):
         await message.answer(await self.show_all(message.from_user.id),
                              reply_markup=kb.main)  # мы это делаем потому, что если использовать self.id получается баг
@@ -91,7 +91,7 @@ async def setup_handlers(self):
         user.state = SessionState.NOTES_LIST.value
         self.user_service.update(user)  # апдейтим state
 
-    @self.dp.message(F.text == "Удалить заметку")
+    @self.dp.message(F.text.contains("❌")) #Удалить заметки
     async def del_nts(message: Message, state: FSMContext):
         user = self.user_service.get(message.from_user.id)  # раскатываем дто объект юзера обязательно заново
         user.state = SessionState.DEL_NOTE.value
@@ -112,7 +112,7 @@ async def setup_handlers(self):
         self.user_service.update(user)  # апдейтим json
         await state.clear()
 
-    @self.dp.message(F.text == "Редактировать заметку")
+    @self.dp.message(F.text.contains("✏️"))
     async def edit_nts(message: Message, state: FSMContext):
         await message.answer(await self.show_all(message.from_user.id))
         await state.set_state(EditNote.note_id)
