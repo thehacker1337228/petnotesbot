@@ -96,7 +96,7 @@ class NoteDto:
         self.created_at = created_at
         self.updated_at = updated_at
 
-    def to_model(self):  # для работы с бд для запроса эскулль
+    def to_model(self):  # для работы с бд для запроса эскуль
         return (self.user_id, self.title, self.content, self.created_at, self.updated_at, self.note_id)
 
     @staticmethod

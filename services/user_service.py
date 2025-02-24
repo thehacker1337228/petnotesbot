@@ -20,7 +20,7 @@ class UserService:
         connection.commit()
         connection.close()
 
-# ЗДЕСЬ БЫЛ check
+# ЗДЕСЬ БЫЛ chec
 
     def add(self, user):  # tg_id,username,created_at,state,json_data
         connection = sqlite3.connect(self.db_name)
