@@ -6,6 +6,11 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from services.note_service import NoteDto
+from services.pages_service import PagesService
+from aiogram.types import CallbackQuery
+
+from aiogram.methods.delete_message import DeleteMessage
+
 
 from enum import Enum
 import json
@@ -47,6 +52,64 @@ async def setup_handlers(self):
         await state.clear()
         await message.answer("Операция отменена", reply_markup=kb.main)
 
+
+    @self.dp.message(F.text.contains("📑")) #список заметок
+    async def inline_list(message:Message):
+        pages = PagesService()
+        titles = await pages.list(message.from_user.id)
+        keyboard = await pages.gen_inline(titles)
+        await message.answer("Список заметок", reply_markup=keyboard)
+
+    @self.dp.callback_query(lambda callback: callback.data.startswith("nxt_"))
+    async def nxt_page(callback: CallbackQuery):
+        current_page = int(callback.data.split("_")[1])
+        pages = PagesService()
+        scope = await pages.list_scope(callback.from_user.id)
+        keyboard = await pages.gen_inline_scope(scope, current_page=current_page + 1)
+        await callback.message.edit_reply_markup(reply_markup=keyboard)
+        await callback.answer()
+
+
+
+
+
+
+
+    @self.dp.callback_query(lambda callback: callback.data.startswith("next_"))
+    async def next_page(callback: CallbackQuery):
+        current_page = int(callback.data.split("_")[1])
+        pages = PagesService()
+        titles = await pages.list(callback.from_user.id)
+        keyboard = await pages.gen_inline(titles,current_page=current_page+1)
+        await callback.message.edit_reply_markup(reply_markup=keyboard)
+        await callback.answer()
+
+    @self.dp.callback_query(lambda callback: callback.data.startswith("prev_"))
+    async def prev_page(callback: CallbackQuery):
+        current_page = int(callback.data.split("_")[1])
+        pages = PagesService()
+        titles = await pages.list(callback.from_user.id)
+        keyboard = await pages.gen_inline(titles, current_page=current_page - 1)
+        await callback.message.edit_reply_markup(reply_markup=keyboard)
+        await callback.answer()
+
+    @self.dp.callback_query(lambda callback: callback.data == "предел")
+    async def page_limit(callback: CallbackQuery):
+        await callback.answer("Достигнут предел страниц")
+
+    @self.dp.callback_query(lambda callback: callback.data.startswith("note_"))
+    async def note_num(callback: CallbackQuery):
+        note_index = int(callback.data.split("_")[1])
+        note = self.note_service.get_note(note_index)  # получаем ноту по note_id
+        result = f"<b>📌 {note.title}</b>\n📄 {note.content}"
+        pages = PagesService()
+        titles = await pages.list(callback.from_user.id)
+        keyboard = await pages.gen_inline(titles, force=True)
+        await callback.message.answer(result, reply_markup=keyboard)
+        #await callback.answer(f"Заметка с note_id {note_index}") #высплывающее техническое сообщение
+        await callback.bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+
+
     @self.dp.message(F.text.contains("📌")) #Добавить заметку
     async def add_one(message: Message, state: FSMContext):
         user = self.user_service.get(message.from_user.id)  # раскатываем дто объект юзера обязательно заново
@@ -83,10 +146,17 @@ async def setup_handlers(self):
 
         await state.clear()
 
-    @self.dp.message(F.text.contains("🗒️")) #Мои заметки
+    @self.dp.message(F.text.contains("🗒️")) #Мои заметки (заметки скопом)
     async def show(message: Message):
+        #await message.answer(await self.show_all(message.from_user.id),
+        #                     reply_markup=kb.main)  # мы это делаем потому, что если использовать self.id получается баг
+        pages = PagesService()
+        scope = await pages.list_scope(message.from_user.id)
+        keyboard = await pages.gen_inline_scope(scope)
+
         await message.answer(await self.show_all(message.from_user.id),
-                             reply_markup=kb.main)  # мы это делаем потому, что если использовать self.id получается баг
+                             reply_markup=keyboard)  # мы это делаем потому, что если использовать self.id получается баг
+
         user = self.user_service.get(message.from_user.id)  # раскатываем дто объект юзера обязательно заново
         user.state = SessionState.NOTES_LIST.value
         self.user_service.update(user)  # апдейтим state
