@@ -57,10 +57,10 @@ VALUES(?, ?, ?, ?, ?)
 
         return result
 
-    def delete(self, note_id):
+    def delete(self, note_id,tg_id):
         connection = sqlite3.connect(self.db_name)
         cursor = connection.cursor()
-        cursor.execute('UPDATE Notes SET is_deleted = 1 WHERE note_id=?', (note_id,))
+        cursor.execute('UPDATE Notes SET is_deleted = 1 WHERE note_id=? AND user_id=?', (note_id,tg_id))
         connection.commit()
         connection.close()
 

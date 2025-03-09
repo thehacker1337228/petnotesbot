@@ -24,7 +24,7 @@ class TelegramBot:
     def __init__(self, token, need_init = False):
         self.bot = Bot(token=token, session=AiohttpSession(), default=DefaultBotProperties(parse_mode='HTML'))
         self.dp = Dispatcher()
-        self.logged_users = {}
+
         self.note_service = NoteService()
         self.user_service = UserService() #Инитим Юзер Сервис
         self.pages_service = PagesService
@@ -41,14 +41,7 @@ class TelegramBot:
     async def login(self, message: Message):
         """Логин пользователя"""
         user = message.from_user
-        user_data = {
-            "telegram_id": user.id,
-            "full_name": user.full_name,
-            "username": user.username,
-            "language_code": user.language_code,
-            "is_bot": user.is_bot
-        }
-        self.logged_users[user.id] = user_data
+
         self.id = user.id
         self.username = user.username
 
@@ -59,20 +52,6 @@ class TelegramBot:
             await message.answer("Вы успешно зарегистрировались")
         await message.answer("Успешная авторизация!")
 
-    async def show_all(self,user_id):
-        notes = self.note_service.get_all(user_id)
-        MAX_LENGTH = 4096
-        if not notes:
-            result = "У вас нет заметок"
-            return result
-        else:
-            result = "=====[ Заметки ]=====\n"
-            for note in notes:
-                result += f"<b>{note.title}</b>\n{note.content}\n<i>ID: {note.note_id}</i>\n\n"
-            if len(result) <= MAX_LENGTH:
-                return result
-            else:
-                return result[:MAX_LENGTH]
 
 
     async def run(self):
