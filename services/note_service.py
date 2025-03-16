@@ -50,11 +50,10 @@ VALUES(?, ?, ?, ?, ?)
                 AND user_id = ?""", (user_id,))
         data = cursor.fetchall()
         connection.close()
-
         result = []
         for row in data:
             result.append(NoteDto.from_model(row))
-
+        print(result)
         return result
 
     def delete(self, note_id,tg_id):

@@ -1,8 +1,8 @@
 from services.note_service import NoteService
+from services.note_requests import NoteRequests
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-import asyncio
 from datetime import datetime
 
 
@@ -10,15 +10,16 @@ class PagesService:
 
     def __init__(self):
         self.note_service = NoteService()
+        self.note_requests = NoteRequests()
 
 
     async def list(self,user_id):
-        notes = self.note_service.get_all(user_id)
+        notes = await self.note_requests.get_all(user_id)
         titles = [(i.title, i.note_id) for i in reversed(notes)]
         return titles
 
     async def list_scope(self,user_id):
-        notes = self.note_service.get_all(user_id)
+        notes = await self.note_requests.get_all(user_id)
         cnt = 0
         if not notes:
             scope = "У вас нет заметок"
