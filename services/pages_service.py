@@ -1,4 +1,3 @@
-from services.note_service import NoteService
 from services.note_requests import NoteRequests
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -9,7 +8,6 @@ from datetime import datetime
 class PagesService:
 
     def __init__(self):
-        self.note_service = NoteService()
         self.note_requests = NoteRequests()
 
 
@@ -42,7 +40,8 @@ class PagesService:
         if len(result) <= MAX_LENGTH:
             return result
         else:
-            return result[:MAX_LENGTH-3]+"..."
+            return "Невозможно отобразить все заметки - ограничение Telegram. Обратитесь за помощью к @arturio_agre"
+
 
 
 

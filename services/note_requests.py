@@ -4,6 +4,14 @@ from sqlalchemy import select, update
 
 
 class NoteRequests:
+
+    async def cnt(self, user_id):
+        async with async_session() as session:
+            result = await session.execute(select(Note).where(Note.user_id == user_id))
+            return len(result.scalars().all()) #получаем кол-во заметок у юзера
+
+
+
     async def add(self, note_dto): #принимает DTO object Работает
         async with async_session() as session:
             note = Note(**vars(note_dto)) #типа to_model

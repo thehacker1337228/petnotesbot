@@ -4,6 +4,9 @@ from sqlalchemy import select, func
 
 
 class UserRequests:
+
+
+
     async def add(self, user_dto): #принимает DTO object
         async with async_session() as session:
             user = User(**vars(user_dto)) #типа to_model
@@ -23,6 +26,10 @@ class UserRequests:
             result = await session.execute(select(User).where(User.tg_id == tg_id))
             user = result.scalar_one_or_none()
             return user
+    async def get_all_users(self):
+        async with async_session() as session:
+            result = await session.execute(select(User))
+            return result.scalars().all()  # Вернет список объектов User
 
     async def update(self, user_dto):
         async with async_session() as session:
